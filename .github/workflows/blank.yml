@@ -20,7 +20,7 @@ jobs:
       - name: Set up dependencies
         run: |
           sudo apt update
-          sudo apt install -y cmake gcc-arm-none-eabi build-essential ninja
+          sudo apt install -y cmake gcc-arm-none-eabi build-essential ninja-build
 
       - name: Clone Pico SDK
         run: |
