@@ -2,41 +2,45 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 
-#define I2C_ADDR 0x27  // Проверь адрес сканером!
+#define LED_PIN 25  // Встроенный светодиод
 #define I2C_PORT i2c0
 #define SDA_PIN 0
 #define SCL_PIN 1
+#define LCD_ADDR 0x27 // Проверь адрес дисплея (может быть 0x3F)
 
-void lcd_write_cmd(uint8_t cmd) {
+// Функция отправки команды дисплею
+void lcd_send_command(uint8_t cmd) {
     uint8_t buf[1] = {cmd};
-    i2c_write_blocking(I2C_PORT, I2C_ADDR, buf, 1, false);
+    i2c_write_blocking(I2C_PORT, LCD_ADDR, buf, 1, false);
+}
+
+// Включение подсветки (если поддерживается)
+void lcd_backlight_on() {
+    lcd_send_command(0x08); // Некоторые дисплеи включают подсветку этим
 }
 
 int main() {
     stdio_init_all();
-    i2c_init(I2C_PORT, 100 * 1000);
+
+    // Инициализация светодиода
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    // Инициализация I2C
+    i2c_init(I2C_PORT, 100000);
     gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);
     gpio_pull_up(SDA_PIN);
     gpio_pull_up(SCL_PIN);
 
-    printf("Initializing LCD...\n");
+    // Включение подсветки
+    lcd_backlight_on();
 
-    sleep_ms(50);   // Задержка перед инициализацией
-    lcd_write_cmd(0x33); // Reset
-    sleep_ms(5);
-    lcd_write_cmd(0x32); // 4-bit mode
-    sleep_ms(5);
-    lcd_write_cmd(0x28); // 2 строки, 5x8 точки
-    lcd_write_cmd(0x0C); // Включить дисплей, отключить курсор
-    lcd_write_cmd(0x06); // Автоинкремент курсора
-    lcd_write_cmd(0x01); // Очистка экрана
-    sleep_ms(5);
-
-    printf("LCD Initialized!\n");
-
-    while (1) {
-        printf("Looping...\n");
-        sleep_ms(1000);
+    // Мигание светодиодом
+    while (true) {
+        gpio_put(LED_PIN, 1);
+        sleep_ms(500);
+        gpio_put(LED_PIN, 0);
+        sleep_ms(500);
     }
 }
