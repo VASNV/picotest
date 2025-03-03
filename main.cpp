@@ -6,7 +6,7 @@
 #define I2C_PORT i2c0
 #define SDA_PIN 0
 #define SCL_PIN 1
-#define LCD_ADDR 0x27 // Проверь адрес дисплея (может быть 0x3F)
+#define LCD_ADDR 0x3F // Проверь адрес дисплея (может быть 0x3F)
 
 // Функция отправки команды дисплею
 void lcd_send_command(uint8_t cmd) {
